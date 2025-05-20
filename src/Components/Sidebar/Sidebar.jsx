@@ -1,62 +1,67 @@
-import React, { useContext, useState } from 'react'
+// Sidebar.jsx
+import React, { useContext, useState, useEffect } from 'react'
 import './Sidebar.css'
-import {assets} from '../../assets/assets'
+import { assets } from '../../assets/assets'
 import { Context } from '../../context/Context.jsx'
 
+const Sidebar = () => {
+  const [extended, setExtended] = useState(false);
+  const [darkMode, setDarkMode] = useState(() => {
+    return localStorage.getItem('darkMode') === 'true';
+  });
 
+  const { onSent, prevPrompts, setRecentPrompt, newChat } = useContext(Context);
 
- const Sidebar = () => {
+  const loadPrompt = async (prompt) => {
+    setRecentPrompt(prompt);
+    await onSent(prompt);
+  };
 
-  const [extended,setExtended]=useState(false)
-    const{onSent,prevPrompts,setRecentPrompt,newChat} = useContext(Context)
+  useEffect(() => {
+    document.body.classList.toggle('dark', darkMode);
+    localStorage.setItem('darkMode', darkMode);
+  }, [darkMode]);
 
-
-    const loadPrompt = async(prompt)=>{
-      setRecentPrompt(prompt)
-      await onSent(prompt)
-    }
   return (
-    <div className='sidebar'>
+    <div className={`sidebar ${darkMode ? 'dark' : ''}`}>
       <div className="top">
-        <img onClick={()=>setExtended(prev=>!prev)} className='menu' src={assets.menu_icon} alt="" />
-     <div onClick={()=>newChat()} className="new-chat">
-        <img src={assets.plus_icon} alt="" />
-        {extended?<p>New Chat?</p>:null}
-     </div>
-     {extended?
-     <div className="recent">
-        <p className='recent-title'>Recent</p>
-        {prevPrompts.map((item,index)=>{
-          return(
-            
-            <div onClick={()=>loadPrompt(item)} className="recent-entry">
-              
-            <img src={assets.message_icon} alt="" />
-            <p>{item.slice(0,18)} ...</p>
+        <img onClick={() => setExtended(prev => !prev)} className='menu' src={assets.menu_icon} alt="menu" />
+        <div onClick={() => newChat()} className="new-chat">
+          <img src={assets.plus_icon} alt="plus" />
+          {extended ? <p>New Chat?</p> : null}
         </div>
-          )
-
-        })}
-        
-     </div>
-     :null}
+        {extended ? (
+          <div className="recent">
+            <p className='recent-title'>Recent</p>
+            {prevPrompts.map((item, index) => (
+              <div onClick={() => loadPrompt(item)} className="recent-entry" key={index}>
+                <img src={assets.message_icon} alt="message" />
+                <p>{item.slice(0, 18)} ...</p>
+              </div>
+            ))}
+          </div>
+        ) : null}
       </div>
       <div className="bottom">
         <div className="bottom-item recent-entry">
-            <img src={assets.question_icon} alt="" />
-           {extended? <p>Help</p>:null}
+          <img src={assets.question_icon} alt="help" />
+          {extended ? <p>Help</p> : null}
         </div>
         <div className="bottom-item recent-entry">
-            <img src={assets.history_icon} alt="" />
-            {extended?<p>History</p>:null}
+          <img src={assets.history_icon} alt="history" />
+          {extended ? <p>History</p> : null}
         </div>
         <div className="bottom-item recent-entry">
-            <img src={assets.setting_icon} alt="" />
-            {extended?<p>Settings</p>:null}
+          <img src={assets.setting_icon} alt="settings" />
+          {extended ? <p>Settings</p> : null}
+        </div>
+        <div className="bottom-item recent-entry" onClick={() => setDarkMode(!darkMode)}>
+          <img src="https://img.icons8.com/ios-filled/24/contrast.png" alt="toggle theme" />
+          {extended ? <p>{darkMode ? 'Light Mode' : 'Dark Mode'}</p> : null}
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Sidebar
+export default Sidebar;
